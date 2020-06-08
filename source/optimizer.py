@@ -1,3 +1,7 @@
+"""
+    Optimizer implementeations based on source from original repository
+    https://github.com/neuralmind-ai/electricity-theft-detection-with-self-attention
+"""
 # credit to https://raw.githubusercontent.com/LiyuanLucasLiu/RAdam/master/radam.py
 
 import math

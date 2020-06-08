@@ -1,3 +1,9 @@
+"""
+    The module implements training routines.
+    It based on source code from GitHub repository:
+    https://github.com/neuralmind-ai/electricity-theft-detection-with-self-attention
+"""
+
 import os
 
 import numpy as np
@@ -6,13 +12,17 @@ from torch import nn
 from torch.utils.data import DataLoader
 from sklearn.model_selection import StratifiedKFold
 
-from utils import create_dir
-from evaluate import evaluate_fn
-from metrics import metrics_report
-from radam import RAdam
-from dataset import FraudDataset
+from source.utils import create_dir
+from source.evaluate import evaluate_fn
+from source.metric import metrics_report
+from source.optimizer import RAdam
+from source.dataset import FraudDataset
 
-def train_one_epoch(model, dataloader, optim, criterion, device='cpu'):
+def __train_one_epoch(model, dataloader, optim, criterion, device='cpu'):
+    """
+    Goes through data rows with a gradient calculations 
+    and a correction of parameter values
+    """
     loss_sum = 0
     model.train() 
     for x, y in dataloader:
@@ -24,15 +34,18 @@ def train_one_epoch(model, dataloader, optim, criterion, device='cpu'):
         loss_sum += loss.item()
     return loss_sum/len(dataloader)
 
-def train(model, train_loader, valid_loader, optim, criterion,
+def __train(model, train_loader, valid_loader, optim, criterion,
             n_epochs=10, save_epochs=1, output_dir='model/', device='cpu', verbose=False):
+    """
+    Performs training for a particular model and a data loader 
+    """
     create_dir(output_dir)
     train_losses, valid_losses = [], []
     f1s = []
     best_f1 = -1
     best_epoch = 0
     for epoch in range(n_epochs):
-        train_loss = train_one_epoch(model, train_loader, optim, criterion, device)
+        train_loss = __train_one_epoch(model, train_loader, optim, criterion, device)
         valid_loss,tn,fp,fn,tp,precision,recall,f1Score = evaluate_fn(model, valid_loader, criterion, 
                                                                             device, verbose=verbose)
 
@@ -56,6 +69,9 @@ def train(model, train_loader, valid_loader, optim, criterion,
     return best_f1, best_epoch
 
 def perform_kfold_cv(df, models, optims, criterion, k_folds, n_epochs=10, random_state=1, output_dir='att_models/', device='cpu', batch_size=100):
+    """
+    Performs 
+    """
     assert len(models) == len(optims) == k_folds
     create_dir(output_dir)
     skf = StratifiedKFold(n_splits=k_folds, random_state=random_state, shuffle=True)
@@ -82,7 +98,7 @@ def perform_kfold_cv(df, models, optims, criterion, k_folds, n_epochs=10, random
         model = models[fold]
         optim = optims[fold]
 
-        best_f1, best_epoch = train(model, train_loader, valid_loader, optim, criterion, n_epochs, output_dir=save_dir, verbose=True, device=device)
+        best_f1, best_epoch = __train(model, train_loader, valid_loader, optim, criterion, n_epochs, output_dir=save_dir, verbose=True, device=device)
         print('Fold {} got F1 = {:.3} at epoch {}'.format(fold+1, best_f1, best_epoch),flush=True)
         folds_f1s.append((best_f1, best_epoch, train_index, eval_index))
 

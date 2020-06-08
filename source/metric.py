@@ -1,3 +1,8 @@
+"""
+    Some learning metrics based on source from original repository
+    https://github.com/neuralmind-ai/electricity-theft-detection-with-self-attention
+"""
+
 import numpy as np
 import torch
 

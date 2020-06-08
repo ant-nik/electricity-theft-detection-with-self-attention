@@ -1,3 +1,8 @@
+"""
+    Some evaluation utils based on source from original repository
+    https://github.com/neuralmind-ai/electricity-theft-detection-with-self-attention
+"""
+
 import torch
 import numpy as np
 from sklearn.metrics import confusion_matrix

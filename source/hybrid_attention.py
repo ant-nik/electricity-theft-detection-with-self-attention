@@ -1,3 +1,8 @@
+"""
+    Hybrid attention model based on source from original repository
+    https://github.com/neuralmind-ai/electricity-theft-detection-with-self-attention
+"""
+
 import torch
 import torch.nn as nn
 import math
