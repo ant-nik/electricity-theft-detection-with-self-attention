@@ -14,7 +14,7 @@ from sklearn.metrics import auc
 
 import matplotlib.pyplot as plt
 
-from evaluate import get_logits_and_trues_and_loss
+from source.evaluate import get_logits_and_trues_and_loss
 
 def precision_at_k(y_true,class_probs,k,threshold=0.5,class_of_interest=1,isSorted=False):
     if (not isSorted):
