@@ -168,7 +168,7 @@ def calculate_autocorrelation(frame):
     
     return result
     
-def download_data(self):
+def download_data():
     # Download data from GitHub repository
     os.system('wget -nc -q https://github.com/henryRDlab/ElectricityTheftDetection/raw/master/data.z01')
     os.system('wget -nc -q https://github.com/henryRDlab/ElectricityTheftDetection/raw/master/data.z02')
