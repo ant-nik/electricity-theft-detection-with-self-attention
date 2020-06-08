@@ -40,7 +40,7 @@ class FraudData:
         """ Initializes internal variables """
         self.__csv_data = None
         self.__raw_data = None
-        self.__normalized = None
+        self.__normalized_data = None
         self.__filepath = filepath
         self.__thief_ac = None
         self.__thief_norm_ac = None
@@ -69,7 +69,7 @@ class FraudData:
     @property
     def normalized(self):
         """ Getter for normalized dataframe """
-        if self.__normalized is None:
+        if self.__normalized_data is None:
             self.__normalize(self.__filepath)
         return self.__normalized_data
     
