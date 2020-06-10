@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 
 class FraudDataset(Dataset):
     """ Represents fraud dataset """
-    def __init__(self, x, y):
+    def __init__(self, x: pandas.DataFrame, y: pandas.DataFrame):
         """ Initialization & NaN values transformation (NaN => 0 + bit mask """
         self.x = x
         self.xnan = x.copy()
@@ -26,7 +26,7 @@ class FraudDataset(Dataset):
         """ Returns length of dataset """
         return len(self.x)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int):
         """ row's getter """
         x, y = self.x[index], self.y[index]
         return x.astype(numpy.float32), y.astype(numpy.int64)
@@ -41,7 +41,7 @@ class FraudData:
         self.__csv_data = None
         self.__raw_data = None
         self.__normalized_data = None
-        self.__filepath = filepath
+        self.__filepath = filepath # type str
         self.__thief_ac = None
         self.__thief_norm_ac = None
         self.__regular_ac = None
@@ -60,21 +60,21 @@ class FraudData:
         self.__raw_data['FLAG'] = self.__csv_data.FLAG
     
     @property
-    def raw(self):
+    def raw(self) -> pandas.DataFrame:
         """ Getter for raw dataframe """
         if self.__raw_data is None:
             self.__load_raw_data()
         return self.__raw_data
         
     @property
-    def normalized(self):
+    def normalized(self) -> pandas.DataFrame:
         """ Getter for normalized dataframe """
         if self.__normalized_data is None:
-            self.__normalize(self.__filepath)
+            self.__normalize()
         return self.__normalized_data
     
     @property
-    def thief_ac(self):
+    def thief_ac(self) -> pandas.DataFrame:
         """ Thief's autocorrelation getter """
         if self.__thief_ac is None:
             self.__thief_ac = calculate_autocorrelation(self.raw[self.raw['FLAG'] > 0.0].drop(
@@ -82,7 +82,7 @@ class FraudData:
         return self.__thief_ac
     
     @property
-    def norm_thief_ac(self):
+    def norm_thief_ac(self) -> pandas.DataFrame:
         """ Thief's autocorelation getter based on normalized dataset """
         if self.__thief_norm_ac is None:
             self.__thief_norm_ac = calculate_autocorrelation(
@@ -90,7 +90,7 @@ class FraudData:
         return self.__thief_norm_ac
     
     @property
-    def regular_ac(self):
+    def regular_ac(self) -> pandas.DataFrame:
         """ Regular client's autocorrelation getter """
         if self.__regular_ac is None:
             self.__regular_ac = calculate_autocorrelation(self.raw[self.raw['FLAG'] < 1.0].drop(
@@ -98,7 +98,7 @@ class FraudData:
         return self.__regular_ac
     
     @property
-    def norm_regular_ac(self):
+    def norm_regular_ac(self) -> pandas.DataFrame:
         """ Regular client's autocorelation getter based on normalized dataset """
         if self.__regular_norm_ac is None:
             self.__regular_norm_ac = calculate_autocorrelation(
@@ -106,14 +106,14 @@ class FraudData:
         return self.__regular_norm_ac
     
     @property
-    def dataset(self):
+    def dataset(self) -> pandas.DataFrame:
         """ Tourch dataset getter """
         if self.__dataset is None:
             self.__dataset = FraudDataset(x=self.raw.drop('FLAG', axis=1), 
                                           y=self.raw['FLAG'])
         return self.__dataset
         
-    def __normalize(self, filepath):
+    def __normalize(self):
         """ Normalizes raw data and makes new normalized dataframe """
         self.__normalized_data = self.raw.drop(['FLAG'], axis=1)
         quantile = quantile_transform(self.__normalized_data.values, n_quantiles=10, 
@@ -128,7 +128,7 @@ class FraudData:
         
 class CNNDataset(FraudDataset):
     """ View of FraudDataset as 2D image """
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> (pandas.DataFrame, pandas.DataFrame):
         """ item's getter """
         # TODO: make precalculation 
         x, y = self.x[index], self.y[index]
@@ -136,7 +136,7 @@ class CNNDataset(FraudDataset):
         return x.astype(np.float32), y.astype(np.int64)        
 
 
-def calculate_autocorrelation(frame):
+def calculate_autocorrelation(frame: pandas.DataFrame) -> pandas.DataFrame:
     """ Calculates autocorelation for input dataframe that has rows as series and columns as timestamps """
     # thief = data.raw[data.raw['FLAG']==1.0].drop('FLAG', axis=1)
     result = pandas.DataFrame(dtype=numpy.float64)

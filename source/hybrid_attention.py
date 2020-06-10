@@ -8,12 +8,17 @@ import torch.nn as nn
 import math
 import torch.nn.functional as F
 
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+class ModelParams(nn.Module):
+    """ Stores generic params """
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    activation = nn.PReLU
+    norm       = nn.LayerNorm
+    
+    def __init__(self):
+        """ Redirects constructor call to basic class """
+        super().__init__()
 
-activation = nn.PReLU
-norm       = nn.LayerNorm
-
-class LinearAttention(nn.Module):
+class LinearAttention(ModelParams):
 
     def __init__(self, in_heads, out_heads):
         super().__init__()
@@ -58,7 +63,7 @@ class LinearAttention(nn.Module):
         
         return attention
 
-class MixedDilationConv(nn.Module):
+class MixedDilationConv(ModelParams):
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -75,7 +80,7 @@ class MixedDilationConv(nn.Module):
     
 
     
-class AttnBlock(nn.Module):
+class AttnBlock(ModelParams):
     def __init__(self, in_dv, in_channels, out_dv, conv_channels):
         super().__init__()
         self.attn = LinearAttention(in_dv, out_dv)
@@ -91,7 +96,7 @@ class AttnBlock(nn.Module):
         return fo
 
 
-class HybridAttentionModel(nn.Module):
+class HybridAttentionModel(ModelParams):
 
     def __init__(self):
         super().__init__()
@@ -99,19 +104,19 @@ class HybridAttentionModel(nn.Module):
         drop = 0.5
         self.net = nn.Sequential(
             AttnBlock(2, 2, 16, 32),
-            norm((48,147,7)),
-            activation(),
+            self.norm((48,147,7)),
+            self.activation(),
             nn.Dropout(drop),
             AttnBlock(48, 48, 16, 32),
-            norm((48,147,7)), 
-            activation(),
+            self.norm((48,147,7)), 
+            self.activation(),
             nn.Dropout(drop),
         )
         
         self.classifier = nn.Sequential(
             nn.Linear(48 * 1029, neurons * 8),
             nn.BatchNorm1d(neurons * 8),
-            activation(),
+            self.activation(),
             nn.Dropout(0.6),
             nn.Linear(neurons * 8, 2),
         )
